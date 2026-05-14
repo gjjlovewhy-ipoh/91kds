@@ -1,0 +1,30 @@
+name: IPTV自动抓取更新
+
+on:
+  schedule:
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 配置Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 运行抓取脚本
+        run: python main.py
+
+      - name: 提交更新文件
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: "自动更新IPTV源 TXT+M3U"
+          add: "live.txt live.m3u"
