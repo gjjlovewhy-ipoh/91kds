@@ -5,6 +5,13 @@ on:
     - cron: '0 */3 * * *'
   workflow_dispatch:
 
+# 解决Node20弃用警告 + 授权写入仓库
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -23,8 +30,14 @@ jobs:
       - name: 运行抓取脚本
         run: python main.py
 
-      - name: 提交更新文件
-        uses: EndBug/add-and-commit@v9
-        with:
-          message: "自动更新IPTV源 TXT+M3U"
-          add: "live.txt live.m3u"
+      # 关键：配置git用户，不然无法提交
+      - name: 设置Git提交身份
+        run: |
+          git config user.name "IPTV Bot"
+          git config user.email "bot@github.com"
+
+      - name: 提交并推送生成文件
+        run: |
+          git add live.txt live.m3u
+          git commit -m "Auto update iptv source"
+          git push
